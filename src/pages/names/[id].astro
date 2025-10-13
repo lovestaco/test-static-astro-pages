@@ -1,0 +1,285 @@
+---
+import fs from 'fs';
+import path from 'path';
+
+export async function getStaticPaths() {
+  const namesJsonPath = path.join(process.cwd(), 'public', 'names.json');
+  const namesJsonContent = fs.readFileSync(namesJsonPath, 'utf-8');
+  const namesData = JSON.parse(namesJsonContent);
+
+  return namesData.users.map((user) => ({
+    params: { id: user.id.toString() },
+    props: { user },
+  }));
+}
+
+const { user } = Astro.props;
+---
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{user.firstName} {user.lastName} - User Details</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #007bff;
+      text-decoration: none;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    .user-card {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .user-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-right: 20px;
+      object-fit: cover;
+    }
+    .user-info h1 {
+      margin: 0;
+      color: #333;
+      font-size: 28px;
+    }
+    .user-info p {
+      margin: 5px 0 0 0;
+      color: #666;
+      font-size: 16px;
+    }
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .detail-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 6px;
+    }
+    .detail-section h3 {
+      margin: 0 0 15px 0;
+      color: #333;
+      font-size: 18px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 5px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+    .detail-label {
+      font-weight: 500;
+      color: #555;
+    }
+    .detail-value {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/names" class="back-link">← Back to Names Directory</a>
+    
+    <div class="user-card">
+      <div class="user-header">
+        <img src={user.image} alt={`${user.firstName} ${user.lastName}`} class="avatar" />
+        <div class="user-info">
+          <h1>{user.firstName} {user.lastName}</h1>
+          <p>ID: {user.id} • {user.role}</p>
+        </div>
+      </div>
+
+      <div class="details-grid">
+        <div class="detail-section">
+          <h3>Personal Information</h3>
+          <div class="detail-row">
+            <span class="detail-label">Age:</span>
+            <span class="detail-value">{user.age}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Gender:</span>
+            <span class="detail-value">{user.gender}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Birth Date:</span>
+            <span class="detail-value">{user.birthDate}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Blood Group:</span>
+            <span class="detail-value">{user.bloodGroup}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Height:</span>
+            <span class="detail-value">{user.height} cm</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Weight:</span>
+            <span class="detail-value">{user.weight} kg</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Eye Color:</span>
+            <span class="detail-value">{user.eyeColor}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Hair:</span>
+            <span class="detail-value">{user.hair.color} {user.hair.type}</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Contact Information</h3>
+          <div class="detail-row">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value">{user.email}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Phone:</span>
+            <span class="detail-value">{user.phone}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Username:</span>
+            <span class="detail-value">{user.username}</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Address</h3>
+          <div class="detail-row">
+            <span class="detail-label">Street:</span>
+            <span class="detail-value">{user.address.address}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">City:</span>
+            <span class="detail-value">{user.address.city}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">State:</span>
+            <span class="detail-value">{user.address.state} ({user.address.stateCode})</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Postal Code:</span>
+            <span class="detail-value">{user.address.postalCode}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Country:</span>
+            <span class="detail-value">{user.address.country}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Coordinates:</span>
+            <span class="detail-value">{user.address.coordinates.lat}, {user.address.coordinates.lng}</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Professional Information</h3>
+          <div class="detail-row">
+            <span class="detail-label">University:</span>
+            <span class="detail-value">{user.university}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Company:</span>
+            <span class="detail-value">{user.company.name}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Department:</span>
+            <span class="detail-value">{user.company.department}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Title:</span>
+            <span class="detail-value">{user.company.title}</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Financial Information</h3>
+          <div class="detail-row">
+            <span class="detail-label">Card Type:</span>
+            <span class="detail-value">{user.bank.cardType}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Card Number:</span>
+            <span class="detail-value">{user.bank.cardNumber}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Expires:</span>
+            <span class="detail-value">{user.bank.cardExpire}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Currency:</span>
+            <span class="detail-value">{user.bank.currency}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">IBAN:</span>
+            <span class="detail-value">{user.bank.iban}</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Technical Information</h3>
+          <div class="detail-row">
+            <span class="detail-label">IP Address:</span>
+            <span class="detail-value">{user.ip}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">MAC Address:</span>
+            <span class="detail-value">{user.macAddress}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">EIN:</span>
+            <span class="detail-value">{user.ein}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">SSN:</span>
+            <span class="detail-value">{user.ssn}</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Crypto Information</h3>
+          <div class="detail-row">
+            <span class="detail-label">Coin:</span>
+            <span class="detail-value">{user.crypto.coin}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Wallet:</span>
+            <span class="detail-value">{user.crypto.wallet}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Network:</span>
+            <span class="detail-value">{user.crypto.network}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
