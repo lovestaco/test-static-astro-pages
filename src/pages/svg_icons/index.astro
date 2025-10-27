@@ -1,0 +1,103 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SvgIcons from './_SvgIcons.astro';
+
+// Load SVG icons data
+const svgIconsEntries = await getCollection('svgIconsMetadata');
+const iconsData = svgIconsEntries[0]?.data;
+
+if (!iconsData) {
+  throw new Error('SVG icons metadata not found');
+}
+
+// Get all categories with their data
+const allCategories = Object.entries(iconsData.clusters).map(
+  ([key, clusterData]) => ({
+    id: key,
+    name: clusterData.name,
+    description: clusterData.description,
+    icon: `/freedevtools/svg_icons/${clusterData.name}/`,
+    iconCount: clusterData.fileNames.length,
+    url: `/freedevtools/svg_icons/${clusterData.name}/`,
+    keywords: clusterData.keywords,
+    features: clusterData.features,
+    fileNames: clusterData.fileNames, // Include fileNames for icon previews
+  })
+);
+
+// Calculate total SVG icons across all categories
+const totalSvgIcons = allCategories.reduce((total: number, category: any) => total + category.iconCount, 0);
+
+// Pagination logic for page 1
+const itemsPerPage = 30;
+const currentPage = 1;
+const totalPages = Math.ceil(allCategories.length / itemsPerPage);
+const startIndex = (currentPage - 1) * itemsPerPage;
+const endIndex = startIndex + itemsPerPage;
+const categories = allCategories.slice(startIndex, endIndex);
+const totalCategories = allCategories.length;
+
+// Breadcrumb data
+const breadcrumbItems = [
+  { label: 'Free DevTools', href: '/freedevtools/' },
+  { label: 'SVG Icons' }
+];
+
+// SEO data
+const seoTitle = currentPage === 1 
+  ? "Free SVG Icons - Download & Edit Vector Graphics | Online Free DevTools by Hexmos"
+  : `Free SVG Icons - Page ${currentPage} | Online Free DevTools by Hexmos`;
+
+const seoDescription = currentPage === 1
+  ? `Download 50k+ free SVG icons instantly. Edit colors, add backgrounds, and customize vector graphics for your projects. No registration required.`
+  : `Browse page ${currentPage} of our free SVG icons collection. Download thousands of vector graphics instantly. No registration required.`;
+
+const canonical = currentPage === 1
+  ? "https://hexmos.com/freedevtools/svg_icons/"
+  : `https://hexmos.com/freedevtools/svg_icons/${currentPage}/`;
+
+// Enhanced keywords for main page
+const mainKeywords = [
+  "svg icons",
+  "vector graphics",
+  "free icons", 
+  "download icons",
+  "edit icons",
+  "icon library",
+  "vector graphics library",
+  "svg download",
+  "free vector icons",
+  "customizable icons"
+];
+
+---
+
+<BaseLayout 
+  name="SVG Icons"
+  path={currentPage === 1 ? "/freedevtools/svg_icons/" : `/freedevtools/svg_icons/${currentPage}/`}
+  title={seoTitle}
+  description={seoDescription}
+  canonical={canonical}
+  
+  
+  showHeader={true}
+  totalItems={totalCategories}
+  itemsPerPage={itemsPerPage}
+  currentPage={currentPage}
+  category="SVG Icons"
+  partOf="Free DevTools"
+  partOfUrl="https://hexmos.com/freedevtools/"
+  keywords={mainKeywords}
+  features={["Download", "Edit colors", "Add backgrounds", "Customize", "No registration"]}
+>
+  <SvgIcons 
+    categories={categories}
+    currentPage={currentPage}
+    totalPages={totalPages}
+    totalCategories={totalCategories}
+    totalSvgIcons={totalSvgIcons}
+    breadcrumbItems={breadcrumbItems}
+  />
+</BaseLayout>
+
